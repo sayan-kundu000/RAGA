@@ -7,6 +7,7 @@ from app.retrieval.hybrid_search import (
     DenseVectorIndex,
     HybridRetriever,
 )
+from app.retrieval.rerank import CohereContextCompressor
 
 __all__ = [
     "ParentDocumentRetriever",
@@ -15,4 +16,5 @@ __all__ = [
     "BM25Index",
     "DenseVectorIndex",
     "HybridRetriever",
+    "CohereContextCompressor",
 ]
