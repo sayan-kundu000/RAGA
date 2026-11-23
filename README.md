@@ -189,5 +189,6 @@ See the full [Documentation Index](docs/README.md) for detailed descriptions.
 
 - **GitHub Repository**: [https://github.com/sayan-kundu000/RAGA](https://github.com/sayan-kundu000/RAGA)
 - **API Collection JSON**: `raga_api_collection.json` (Postman / Bruno compatible)
-- **Video Walkthrough Guide**: `VIDEO_WALKTHROUGH.md`
+- **Interactive Control Center & Telemetry Dashboard**: Served live at `/dashboard`
 - **Complete Test Suite**: `tests/`
+
