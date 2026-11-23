@@ -81,3 +81,4 @@ class LatencyTimer:
             generation_latency_ms=self.generation_latency_ms,
             total_latency_ms=total_ms
         )
+

@@ -19,3 +19,4 @@ memory:
   provider: "mem0"
   storage_type: "sqlite"
   max_context_memories: 10
+

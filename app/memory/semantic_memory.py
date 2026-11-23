@@ -128,3 +128,4 @@ class PersonaAdapter:
         )
 
         return self.BASE_SYSTEM_PROMPT + adapter_block
+

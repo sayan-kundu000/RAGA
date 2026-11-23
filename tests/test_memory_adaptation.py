@@ -61,3 +61,4 @@ def test_multi_session_memory_persona_adaptation():
     assert lines[0] == "```python", (
         f"Agent should bypass conversational preamble and return code block directly: {lines[0]}"
     )
+

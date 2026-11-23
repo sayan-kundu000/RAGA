@@ -38,6 +38,16 @@ def create_app() -> FastAPI:
     # Register API Router
     app.include_router(api_router)
 
+    @app.get("/docs/pdf", response_class=FileResponse, tags=["Dashboard & Documentation"])
+    async def download_docs_pdf():
+        """Download or view the compiled RAGA Documentation PDF."""
+        pdf_path = Path(__file__).parent.parent / "docs" / "RAGA_Complete_37_Topics_Manual.pdf"
+        if not pdf_path.exists():
+            pdf_path = Path(__file__).parent.parent / "docs" / "README.pdf"
+        if pdf_path.exists():
+            return FileResponse(pdf_path, media_type="application/pdf", filename="RAGA_Documentation.pdf")
+        return HTMLResponse("<h2>Documentation PDF not found. Run python convert_docs_to_pdf.py</h2>", status_code=404)
+
     @app.get("/dashboard", response_class=HTMLResponse, tags=["Dashboard"])
     async def dashboard():
         """Interactive control center and telemetry dashboard."""

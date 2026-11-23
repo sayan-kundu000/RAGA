@@ -49,3 +49,4 @@ class IngestResponse(BaseModel):
     parent_count: int = Field(..., description="Number of parent documents indexed")
     child_count: int = Field(..., description="Number of child chunks generated and indexed")
     status: str = Field("success", description="Status string")
+

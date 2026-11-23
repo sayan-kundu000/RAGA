@@ -44,3 +44,4 @@ def test_hierarchical_chunking_and_parent_resolution():
     resolved = retriever.resolve_parents(children[:2])
     assert len(resolved) == 1
     assert resolved[0].id == parents[0].id
+

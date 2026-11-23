@@ -78,3 +78,4 @@ async def ingest_documents_endpoint(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error ingesting documents: {str(e)}")
+

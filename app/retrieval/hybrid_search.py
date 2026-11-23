@@ -230,3 +230,4 @@ class HybridRetriever:
             k=self.rrf_k,
             top_k=k,
         )
+

@@ -62,3 +62,4 @@ def test_rrf_empty_inputs():
     fused_dense_only = reciprocal_rank_fusion([doc1], [], k=60, top_k=5)
     assert len(fused_dense_only) == 1
     assert fused_dense_only[0].id == "1"
+

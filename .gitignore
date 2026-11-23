@@ -48,3 +48,4 @@ qdrant_storage/
 *.sqlite3
 memory_store/
 .DS_Store
+

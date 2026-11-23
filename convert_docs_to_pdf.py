@@ -441,3 +441,4 @@ if __name__ == "__main__":
 
     # 3. Generate Complete 37 Topics Reference Manual PDF
     generate_complete_37_topics_pdf(Path("docs/RAGA_Complete_37_Topics_Manual.pdf"))
+

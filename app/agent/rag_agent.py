@@ -164,3 +164,4 @@ class RAGAAgent:
             return f"# No external context retrieved for '{query}'\ndef solution():\n    pass"
 
         return f"RAGA processed your request '{query}' using active profile adaptations."
+

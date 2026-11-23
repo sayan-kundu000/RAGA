@@ -84,3 +84,4 @@ def test_rerank_local_fallback_filter():
     assert len(results) >= 1
     assert results[0].id == "1"
     assert all((d.score or 0) >= 0.25 for d in results)
+

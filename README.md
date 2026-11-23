@@ -181,13 +181,15 @@ The repository includes a comprehensive 37-chapter reference manual located in `
 36. [Chapter 36: Enterprise Use Case: Clinical Decision Support](docs/topics/topic_36.md)
 37. [Chapter 37: Production Failure Modes, Edge Cases & Disaster Recovery](docs/topics/topic_37.md)
 
-See the full [Documentation Index](docs/README.md) for detailed descriptions.
+See the full [Documentation Reference Index (PDF)](docs/README.pdf) and the [Complete 37-Topics Technical Reference Manual (PDF)](docs/RAGA_Complete_37_Topics_Manual.pdf).
 
 ---
 
 ## 6. Deliverables
 
 - **GitHub Repository**: [https://github.com/sayan-kundu000/RAGA](https://github.com/sayan-kundu000/RAGA)
+- **Technical Documentation Reference (PDF)**: `docs/README.pdf`
+- **Complete 37-Topics Systems Manual (PDF)**: `docs/RAGA_Complete_37_Topics_Manual.pdf` (39 pages)
 - **API Collection JSON**: `raga_api_collection.json` (Postman / Bruno compatible)
 - **Interactive Control Center & Telemetry Dashboard**: Served live at `/dashboard`
 - **Complete Test Suite**: `tests/`

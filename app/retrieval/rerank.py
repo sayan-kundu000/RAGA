@@ -156,3 +156,4 @@ class CohereContextCompressor:
 
         scored_docs.sort(key=lambda d: d.score or 0.0, reverse=True)
         return scored_docs[:top_n]
+

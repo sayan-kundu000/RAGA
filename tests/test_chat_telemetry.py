@@ -56,3 +56,4 @@ def test_hybrid_retrieval_and_reranking_latency_validation():
     # Total latency should be greater than or equal to individual components
     assert total_ms >= retrieval_ms
     assert total_ms >= rerank_ms
+
