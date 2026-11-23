@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAGA Control Center & Real-Time Telemetry Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --surface: #111827;
+      --surface-border: #1f293d;
+      --surface-hover: #1a2336;
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.25);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.2);
+      --amber: #f59e0b;
+      --cyan: #06b6d4;
+      --rose: #f43f5e;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at 15% 15%, #141c30 0%, var(--bg) 60%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    code, pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Navigation Header */
+    header {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--surface-border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 0.85rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: #fff;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-badge {
+      font-size: 0.7rem;
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      color: var(--text-muted);
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      color: #fff;
+      background: var(--surface-hover);
+      border-color: #374151;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse-dot 1.8s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    /* Top Navigation Tabs */
+    .tab-bar {
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(17, 24, 39, 0.6);
+      padding: 0.4rem;
+      border-radius: 12px;
+      border: 1px solid var(--surface-border);
+      width: fit-content;
+    }
+
+    .tab-item {
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tab-item.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .tab-item:hover:not(.active) {
+      color: #fff;
+      background: var(--surface-hover);
+    }
+
+    /* Grid Layouts */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1.75rem;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      position: relative;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--surface-border);
+      padding-bottom: 0.9rem;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Telemetry KPI Cards */
+    .telemetry-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .telemetry-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .kpi-card {
+      background: rgba(17, 24, 39, 0.7);
+      border: 1px solid var(--surface-border);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      border-color: #3b82f6;
+    }
+
+    .kpi-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .kpi-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .kpi-value.cyan { color: var(--cyan); }
+    .kpi-value.amber { color: var(--amber); }
+    .kpi-value.emerald { color: var(--emerald); }
+    .kpi-value.purple { color: #a855f7; }
+
+    /* Interactive Chat Form */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    input, select, textarea {
+      background: #0d1322;
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      color: #fff;
+      font-family: inherit;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #fff;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--surface-hover);
+      color: var(--text);
+      border: 1px solid var(--surface-border);
+    }
+
+    .btn-secondary:hover {
+      background: #252f46;
+    }
+
+    /* Preset Buttons */
+    .presets-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .preset-pill {
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(99, 102, 241, 0.1);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .preset-pill:hover {
+      background: rgba(99, 102, 241, 0.25);
+      color: #fff;
+    }
+
+    /* Response Output Box */
+    .output-box {
+      background: #080c14;
+      border: 1px solid var(--surface-border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      min-height: 180px;
+      font-size: 0.9rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      position: relative;
+    }
+
+    .output-box pre {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      padding: 1rem;
+      border-radius: 8px;
+      color: #38bdf8;
+      overflow-x: auto;
+    }
+
+    /* Document Chunks List */
+    .chunk-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 0.25rem;
+    }
+
+    .chunk-item {
+      background: #0d1322;
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .chunk-item:hover {
+      border-color: #4b5563;
+      background: #111a2f;
+    }
+
+    .chunk-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .score-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Memory Facts List */
+    .memory-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .memory-pill {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-left: 3px solid var(--accent);
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: #e0e7ff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Chapter Grid */
+    .chapters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1rem;
+      max-height: 650px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .chapter-card {
+      background: #0d1322;
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .chapter-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    .chapter-num {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .chapter-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 800px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* Spinner */
+    .loader {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <a href="#" class="brand">
+      <div class="logo-badge">R</div>
+      <div>
+        <div class="brand-title">
+          RAGA Control Center
+          <span class="brand-badge">v1.0.0</span>
+        </div>
+      </div>
+    </a>
+
+    <div class="nav-links">
+      <div class="status-pill">
+        <span class="pulse"></span>
+        FastAPI Live on Port 3000
+      </div>
+      <a href="/docs" target="_blank" class="nav-btn">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
+        Swagger Docs
+      </a>
+      <a href="https://github.com/sayan-kundu000/RAGA" target="_blank" class="nav-btn">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub Repo
+      </a>
+    </div>
+  </header>
+
+  <!-- Main View -->
+  <main>
+
+    <!-- Navigation Tabs -->
+    <div class="tab-bar">
+      <button class="tab-item active" onclick="switchTab('chat')">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.678 11.894a1 1 0 0 1 .287.804 10.75 10.75 0 0 1-.77 2.456c-.22.5-.783.57-1.107.155-.386-.497-.674-1.18-.847-1.924a1.83 1.83 0 0 1 .466-1.637l.453-.453a.5.5 0 0 1 .708 0l.81.599zm4.27 1.076a.5.5 0 0 1-.708 0L5.43 12.16a1.83 1.83 0 0 1-.466-1.637c.173-.744.461-1.427.847-1.924.324-.415.887-.345 1.107.155.337.766.602 1.6.77 2.456a1 1 0 0 1-.287.804l-.453.453z"/></svg>
+        Agent Chat & Telemetry
+      </button>
+      <button class="tab-item" onclick="switchTab('memory')">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v2H6V3a2 2 0 0 1 2-2zm3 4V3a3 3 0 1 0-6 0v2H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2z"/></svg>
+        Semantic Memory Explorer
+      </button>
+      <button class="tab-item" onclick="switchTab('ingest')">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V10.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>
+        Document Ingestion Studio
+      </button>
+      <button class="tab-item" onclick="switchTab('topics')">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"/></svg>
+        37 Topics Reference Manual
+      </button>
+    </div>
+
+    <!-- TAB 1: Chat & Telemetry View -->
+    <div id="tab-chat" class="tab-content">
+      
+      <!-- Telemetry KPIs -->
+      <div class="telemetry-row" style="margin-bottom: 1.5rem;">
+        <div class="kpi-card">
+          <div class="kpi-label">Retrieval Latency</div>
+          <div class="kpi-value cyan" id="kpi-retrieval">0.00 ms</div>
+          <div style="font-size: 0.7rem; color: var(--text-dim);">Dense + BM25 + Parent Mapping</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">ReRank Latency</div>
+          <div class="kpi-value amber" id="kpi-rerank">0.00 ms</div>
+          <div style="font-size: 0.7rem; color: var(--text-dim);">Cohere v3 Cross-Encoder Filter</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Generation Latency</div>
+          <div class="kpi-value emerald" id="kpi-generation">0.00 ms</div>
+          <div style="font-size: 0.7rem; color: var(--text-dim);">Adaptive Persona Synthesis</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Latency</div>
+          <div class="kpi-value purple" id="kpi-total">0.00 ms</div>
+          <div style="font-size: 0.7rem; color: var(--text-dim);">Round-Trip Profiling Metric</div>
+        </div>
+      </div>
+
+      <!-- Main Chat Interaction Grid -->
+      <div class="dashboard-grid">
+        
+        <!-- Left: Prompt Form & Output -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg width="18" height="18" fill="var(--accent)" viewBox="0 0 16 16"><path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12z"/></svg>
+              RAGA Agent Query Console
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-dim);">POST /api/chat</span>
+          </div>
+
+          <!-- Presets for Verification Workflows -->
+          <div>
+            <div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.35rem; font-weight: 600;">TEST CASE SCENARIOS:</div>
+            <div class="presets-bar">
+              <button class="preset-pill" onclick="loadScenario(1)">Scenario 1: Setup Profile (Python & Code-Only)</button>
+              <button class="preset-pill" onclick="loadScenario(2)">Scenario 2: Adapted Query (Merge Sort Routine)</button>
+              <button class="preset-pill" onclick="loadScenario(3)">Scenario 3: Technical Hybrid Search Query</button>
+            </div>
+          </div>
+
+          <!-- Form Fields -->
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label for="input-user">User ID</label>
+              <input type="text" id="input-user" value="usr_99" placeholder="e.g. usr_99">
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="input-session">Session ID</label>
+              <input type="text" id="input-session" value="sess_001" placeholder="e.g. sess_001">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="input-query">User Prompt / Question</label>
+            <textarea id="input-query" placeholder="Type your query or click a test scenario above...">Hello! I work in Python and prefer brief, code-only responses.</textarea>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem;">
+            <button class="btn btn-primary" id="btn-submit" onclick="executeChat()">
+              <span class="loader" id="chat-loader"></span>
+              <span>Execute RAG Pipeline</span>
+            </button>
+            <button class="btn btn-secondary" onclick="clearOutput()">Clear</button>
+          </div>
+
+          <!-- Generated Answer Output -->
+          <div class="form-group">
+            <label>Agent Generated Response</label>
+            <div class="output-box" id="output-response">// Agent response will render here upon query execution...</div>
+          </div>
+        </div>
+
+        <!-- Right: Retrieved Chunks & Context Explorer -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg width="18" height="18" fill="var(--cyan)" viewBox="0 0 16 16"><path d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3zM4.5 9a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zM4 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"/></svg>
+              Compressed Document Context
+            </div>
+            <span id="chunk-count-badge" class="brand-badge">0 Chunks</span>
+          </div>
+
+          <div style="font-size: 0.8rem; color: var(--text-dim);">
+            Top-5 re-ranked passages retained after Cohere ReRank v3 compression (Threshold &ge; 0.30):
+          </div>
+
+          <div class="chunk-list" id="chunks-container">
+            <div style="color: var(--text-dim); text-align: center; padding: 2rem;">
+              No retrieved passages yet. Execute a query to view context compression.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 2: Semantic Memory Explorer -->
+    <div id="tab-memory" class="tab-content" style="display: none;">
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">User Semantic Memory Profile</div>
+            <span style="font-size: 0.8rem; color: var(--text-dim);">GET /api/users/{user_id}/memories</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 2;">
+              <label for="mem-user-input">Select User ID</label>
+              <input type="text" id="mem-user-input" value="usr_99">
+            </div>
+            <div class="form-group" style="flex: 1; align-self: flex-end;">
+              <button class="btn btn-primary" style="width: 100%;" onclick="loadUserMemories()">Fetch Memories</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 1rem;">
+            <label>Persisted Semantic Facts & Stylistic Constraints:</label>
+            <div class="memory-list" id="memories-container" style="margin-top: 0.5rem;">
+              <div style="color: var(--text-dim); font-size: 0.85rem;">Click 'Fetch Memories' to load user preferences.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">How Dynamic Adaptation Works</div>
+          </div>
+          <div style="font-size: 0.88rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.8rem;">
+            <p>1. <strong>Real-time Extraction:</strong> As users interact, RAGA's declarative fact engine parses text for coding languages (e.g. Python, TypeScript) and style constraints (e.g. "code-only", "brief").</p>
+            <p>2. <strong>De-duplicated Storage:</strong> Extracted facts are stored under the <code>user_id</code> key in the semantic memory store.</p>
+            <p>3. <strong>Prompt Synthesis:</strong> On every new conversational turn—regardless of session ID—these facts are retrieved and injected into the LLM system prompt.</p>
+            <p>4. <strong>Strict Adherence:</strong> When a user profile indicates <code>code-only</code>, RAGA suppresses explanations and outputs pure code blocks.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Document Ingestion Studio -->
+    <div id="tab-ingest" class="tab-content" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Hierarchical Ingestion Studio</div>
+          <span style="font-size: 0.8rem; color: var(--text-dim);">POST /api/ingest</span>
+        </div>
+
+        <div class="form-group">
+          <label for="ingest-text">Raw Text Payload to Ingest</label>
+          <textarea id="ingest-text" style="min-height: 140px;">Parent Document Retrieval in RAG architectures decouples the granularity of text indexing from the breadth of context supplied to the language model. By indexing small child chunks (200 characters) while mapping them to larger parent document nodes (1000 characters) stored in a local document repository, the system achieves both pinpoint retrieval accuracy and comprehensive context grounding.</textarea>
+        </div>
+
+        <div>
+          <button class="btn btn-primary" onclick="executeIngestion()">Ingest & Partition Documents</button>
+        </div>
+
+        <div class="output-box" id="ingest-output" style="margin-top: 1rem; min-height: 100px;">
+          // Ingestion status and parent/child chunk statistics will appear here...
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: 37 Topics Reference Manual -->
+    <div id="tab-topics" class="tab-content" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">37 Topics Architecture & Systems Engineering Reference Manual</div>
+          <span class="brand-badge">37 Chapters Available</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-dim);">
+          Click on any chapter below to view its complete 7-paragraph technical architectural breakdown.
+        </p>
+
+        <div class="chapters-grid" id="chapters-list">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal Reader for Chapter Content -->
+  <div class="modal-backdrop" id="chapter-modal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--surface-border); padding-bottom: 0.8rem;">
+        <h3 id="modal-title" style="font-size: 1.15rem; font-weight: 800;">Chapter Details</h3>
+        <button onclick="closeModal()" style="background: transparent; border: none; color: #fff; font-size: 1.25rem; cursor: pointer;">&times;</button>
+      </div>
+      <div id="modal-body" style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.7; display: flex; flex-direction: column; gap: 1rem;">
+        Loading...
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CHAPTERS = [
+      "High-Level Architecture of RAGA & Production-Grade Agentic Systems",
+      "Evolution of Retrieval-Augmented Generation: Naive to Advanced RAG",
+      "Full Technology Stack Analysis: FastAPI, LangChain, Qdrant, Cohere & Mem0",
+      "Document Ingestion Pipelines, Chunking Strategies & Token Granularity Dilemmas",
+      "Parent-Document Retrieval Architecture: Decoupling Search Index from LLM Context",
+      "Dense Semantic Vector Embeddings: Geometry, Models & High-Dimensional Spaces",
+      "Sparse Lexical Keyword Retrieval: Okapi BM25 Mathematics & Term Inverted Indexes",
+      "Reciprocal Rank Fusion (RRF): Mathematics, Rank Inversion & Fusion Constants",
+      "Hybrid Search Orchestration: Fusing Semantic Intent with Lexical Precision",
+      "Cohere ReRank v3 Internals & Cross-Encoder Architectures",
+      "Contextual Compression & Token Economics: Signal-to-Noise Optimization",
+      "Relevance Score Thresholding & Hallucination Mitigation Techniques",
+      "Cognitive Memory Taxonomies: Episodic, Semantic, and Procedural Memory Systems",
+      "Mem0 Architecture & Real-Time Declarative Fact Extraction Engines",
+      "Comparative Analysis of Semantic Memory Stores: Mem0 vs Zep vs Graphiti",
+      "Dynamic Persona Adaptation & System Prompt Dynamic Injection Patterns",
+      "Multi-Session Conversation Continuity & Context Window Management",
+      "Asynchronous FastAPI Server Architecture & Non-Blocking Event Loops",
+      "Strict Schema Validation & API Contract Design with Pydantic V2",
+      "Execution Latency Telemetry & High-Precision Subsystem Profiling",
+      "Vector Database Internals: Qdrant HNSW Graph Indexing & Quantization",
+      "Local Storage Persistence & Document Key-Value Mapping Strategies",
+      "Test-Driven Development in RAG: Mock-Driven Retrieval & Score Filter Testing",
+      "Evaluation Methodologies: Ragas Metrics, TruLens Triad & LLM-as-a-Judge",
+      "Security, Secrets Isolation, and Environment Configuration (.env Standards)",
+      "Guardrails, Prompt Injection Mitigation & Context Poisoning Defenses",
+      "Semantic Caching & Exact-Match Query Caching for High-Throughput RAG",
+      "Horizontal Scalability, Docker Containerization & Kubernetes Deployment",
+      "Observability, Distributed Tracing & Langfuse / OpenTelemetry Integration",
+      "Cost Optimization & GPU/Token Resource Allocation in Enterprise RAG",
+      "Streaming Architectures, Server-Sent Events (SSE) & WebSocket Integration",
+      "Agentic RAG Extensions: Query Transformation, HyDE & Multi-Hop Reasoning",
+      "Enterprise Use Case 1: Scalable Corporate Knowledge Management & Wiki Q&A",
+      "Enterprise Use Case 2: Personalized Autonomous Developer Copilot & Codebase Q&A",
+      "Enterprise Use Case 3: Regulatory Compliance, Auditing & Legal Contract Intelligence",
+      "Enterprise Use Case 4: Clinical Decision Support & Biomedical Literature Discovery",
+      "Production Failure Modes, Edge Cases, Disaster Recovery & Continuous CI/CD"
+    ];
+
+    function initChapters() {
+      const container = document.getElementById('chapters-list');
+      container.innerHTML = CHAPTERS.map((title, i) => `
+        <div class="chapter-card" onclick="openChapter(${i + 1}, '${title.replace(/'/g, "\\'")}')">
+          <div class="chapter-num">Chapter ${String(i + 1).padStart(2, '0')}</div>
+          <div class="chapter-name">${title}</div>
+        </div>
+      `).join('');
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+      
+      const target = document.getElementById('tab-' + tabId);
+      if (target) target.style.display = 'block';
+
+      const clickedBtn = Array.from(document.querySelectorAll('.tab-item'))
+        .find(b => b.getAttribute('onclick')?.includes(tabId));
+      if (clickedBtn) clickedBtn.classList.add('active');
+
+      if (tabId === 'memory') loadUserMemories();
+    }
+
+    function loadScenario(num) {
+      if (num === 1) {
+        document.getElementById('input-user').value = 'usr_99';
+        document.getElementById('input-session').value = 'sess_001';
+        document.getElementById('input-query').value = 'Hello! I work in Python and prefer brief, code-only responses.';
+      } else if (num === 2) {
+        document.getElementById('input-user').value = 'usr_99';
+        document.getElementById('input-session').value = 'sess_002';
+        document.getElementById('input-query').value = 'Write a quick merge sort routine.';
+      } else if (num === 3) {
+        document.getElementById('input-user').value = 'usr_developer';
+        document.getElementById('input-session').value = 'sess_003';
+        document.getElementById('input-query').value = 'Explain how hybrid dense-sparse search and Cohere ReRank reduce hallucinations.';
+      }
+    }
+
+    async function executeChat() {
+      const user = document.getElementById('input-user').value.trim();
+      const session = document.getElementById('input-session').value.trim();
+      const query = document.getElementById('input-query').value.trim();
+      const loader = document.getElementById('chat-loader');
+      const responseBox = document.getElementById('output-response');
+
+      if (!query) return;
+
+      loader.style.display = 'inline-block';
+      responseBox.textContent = 'Executing retrieval, compression, and adaptive generation...';
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, user_id: user, session_id: session })
+        });
+        const data = await res.json();
+
+        loader.style.display = 'none';
+
+        if (!res.ok) {
+          responseBox.textContent = 'Error: ' + (data.detail || JSON.stringify(data));
+          return;
+        }
+
+        // Render response
+        responseBox.textContent = data.response;
+
+        // Update Telemetry KPIs
+        if (data.telemetry) {
+          document.getElementById('kpi-retrieval').textContent = data.telemetry.retrieval_latency_ms.toFixed(2) + ' ms';
+          document.getElementById('kpi-rerank').textContent = data.telemetry.rerank_latency_ms.toFixed(2) + ' ms';
+          document.getElementById('kpi-generation').textContent = data.telemetry.generation_latency_ms.toFixed(2) + ' ms';
+          document.getElementById('kpi-total').textContent = data.telemetry.total_latency_ms.toFixed(2) + ' ms';
+        }
+
+        // Render Retrieved Documents
+        const chunkContainer = document.getElementById('chunks-container');
+        const badge = document.getElementById('chunk-count-badge');
+        const docs = data.retrieved_documents || [];
+        badge.textContent = `${docs.length} Chunks Retained`;
+
+        if (docs.length === 0) {
+          chunkContainer.innerHTML = '<div style="color: var(--text-dim); text-align: center; padding: 2rem;">No chunks passed the Cohere relevance threshold (>= 0.30) for this query.</div>';
+        } else {
+          chunkContainer.innerHTML = docs.map((doc, idx) => `
+            <div class="chunk-item">
+              <div class="chunk-meta">
+                <span>Passage #${idx + 1} (${doc.id.substring(0, 8)}...)</span>
+                <span class="score-badge">Score: ${doc.score !== null ? doc.score : 'N/A'}</span>
+              </div>
+              <div style="color: #cbd5e1;">${doc.text}</div>
+            </div>
+          `).join('');
+        }
+
+      } catch (err) {
+        loader.style.display = 'none';
+        responseBox.textContent = 'Request failed: ' + err.message;
+      }
+    }
+
+    async function loadUserMemories() {
+      const user = document.getElementById('mem-user-input').value.trim() || 'usr_99';
+      const container = document.getElementById('memories-container');
+      container.innerHTML = '<div style="color: var(--text-dim);">Loading memories...</div>';
+
+      try {
+        const res = await fetch(`/api/users/${user}/memories`);
+        const data = await res.json();
+        const mems = data.memories || [];
+
+        if (mems.length === 0) {
+          container.innerHTML = `<div style="color: var(--text-dim); padding: 0.5rem 0;">No semantic facts currently recorded for <code>${user}</code>.</div>`;
+        } else {
+          container.innerHTML = mems.map(fact => `
+            <div class="memory-pill">
+              <span>${fact}</span>
+              <span style="font-size: 0.7rem; color: #818cf8; text-transform: uppercase;">Active Preference</span>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        container.innerHTML = `<div style="color: var(--rose);">Error loading memories: ${err.message}</div>`;
+      }
+    }
+
+    async function executeIngestion() {
+      const text = document.getElementById('ingest-text').value.trim();
+      const output = document.getElementById('ingest-output');
+      if (!text) return;
+
+      output.textContent = 'Ingesting and generating parent-child nodes...';
+
+      try {
+        const res = await fetch('/api/ingest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ documents: [{ text, metadata: { source: "dashboard_manual_input" } }] })
+        });
+        const data = await res.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        output.textContent = 'Ingestion error: ' + err.message;
+      }
+    }
+
+    function clearOutput() {
+      document.getElementById('output-response').textContent = '// Ready for next query...';
+    }
+
+    function openChapter(num, title) {
+      document.getElementById('modal-title').textContent = `Chapter ${String(num).padStart(2, '0')}: ${title}`;
+      document.getElementById('modal-body').innerHTML = `
+        <p><strong>Chapter Overview:</strong> This chapter is part of the 37-chapter reference manual for RAGA.</p>
+        <p>You can read the complete 7-paragraph markdown file directly at: <br><code>docs/topics/topic_${String(num).padStart(2, '0')}.md</code></p>
+        <p style="color: var(--cyan);">Covered topics: Architecture mechanics, algorithm mathematics, vector structures, benchmarks, and enterprise use cases.</p>
+      `;
+      document.getElementById('chapter-modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('chapter-modal').classList.remove('active');
+    }
+
+    // Initialize on page load
+    window.onload = function() {
+      initChapters();
+    };
+  </script>
+</body>
+</html>
