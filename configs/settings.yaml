@@ -1,0 +1,21 @@
+server:
+  host: "0.0.0.0"
+  port: 8000
+  title: "RAGA: Advanced RAG Agent API"
+  version: "1.0.0"
+  description: "Advanced RAG Agent with Context Compression & Semantic Memory"
+
+retrieval:
+  parent_chunk_size: 1000
+  child_chunk_size: 200
+  child_chunk_overlap: 50
+  hybrid_candidates: 20
+  rrf_k: 60
+  rerank_model: "rerank-english-v3.0"
+  rerank_top_n: 5
+  rerank_score_threshold: 0.3
+
+memory:
+  provider: "mem0"
+  storage_type: "sqlite"
+  max_context_memories: 10
