@@ -1,0 +1,164 @@
+{
+  "info": {
+    "_postman_id": "raga-advanced-rag-agent-v1",
+    "name": "RAGA: Advanced RAG Agent API Collection",
+    "description": "Production-grade API collection for RAGA (Hybrid Search, Parent-Document Retriever, Cohere ReRank Context Compression, Mem0 Semantic Memory, and Latency Telemetry).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Chat & Generation",
+      "item": [
+        {
+          "name": "Chat 1: Setup Profile (Python & Code-Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Hello! I work in Python and prefer brief, code-only responses.\",\n  \"user_id\": \"usr_99\",\n  \"session_id\": \"sess_001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/chat",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "chat"]
+            },
+            "description": "Sends initial query establishing user preferences. Extracts semantic facts into memory and returns telemetry."
+          }
+        },
+        {
+          "name": "Chat 2: Adapted Query (Merge Sort Routine)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Write a quick merge sort routine.\",\n  \"user_id\": \"usr_99\",\n  \"session_id\": \"sess_002\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/chat",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "chat"]
+            },
+            "description": "New session for usr_99. Demonstrates persona adaptation by returning code-only without verbose explanations."
+          }
+        },
+        {
+          "name": "Chat 3: Technical Hybrid Search Query",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Explain how hybrid dense-sparse search and Cohere ReRank reduce hallucinations.\",\n  \"user_id\": \"usr_developer\",\n  \"session_id\": \"sess_tech_003\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/chat",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "chat"]
+            },
+            "description": "Technical query testing hybrid BM25 + dense retrieval, parent resolution, and Cohere compression."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Semantic Memory",
+      "item": [
+        {
+          "name": "Get User Memories (usr_99)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/usr_99/memories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "usr_99", "memories"]
+            },
+            "description": "Retrieves the list of extracted semantic facts and preferences stored for user usr_99."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ingestion",
+      "item": [
+        {
+          "name": "Ingest Documents",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documents\": [\n    {\n      \"text\": \"Parent Document Retrieval decouples search index granularity from generative context size. We index 200-character child chunks for high-precision search and map them to 1000-character parent nodes for rich contextual LLM generation.\",\n      \"metadata\": {\n        \"source\": \"architecture_guide.md\",\n        \"category\": \"engineering\"\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ingest",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ingest"]
+            },
+            "description": "Ingests raw text, segments into parent-child nodes, and indexes into dense and sparse stores."
+          }
+        }
+      ]
+    },
+    {
+      "name": "System & Health",
+      "item": [
+        {
+          "name": "Root Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Returns operational status and registered endpoints."
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Liveness/readiness probe for container orchestration."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ]
+}
