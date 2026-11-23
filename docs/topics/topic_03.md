@@ -1,0 +1,17 @@
+# Chapter 03: Full Technology Stack Analysis: FastAPI, LangChain, Qdrant, Cohere & Mem0
+
+> Part of the **RAGA Architecture & Systems Engineering Reference Manual**.
+
+The technology stack underpinning RAGA was selected to balance developer productivity, non-blocking asynchronous throughput, vector search scalability, and state-of-the-art neural reranking. The core orchestration layer is implemented in Python 3.12, taking advantage of modern typing constructs, enhanced runtime performance, and a mature ecosystem of machine learning libraries. Every component is loosely coupled through clean abstraction boundaries, ensuring that vector databases, rerankers, and memory engines can be interchanged without breaking the API contract.
+
+FastAPI serves as the API gateway and serving framework, chosen for its native ASGI asynchronous event loop, automatic OpenAPI documentation generation, and high-throughput concurrency capabilities. Integrated with Pydantic V2, FastAPI enforces strict schema validation on incoming request payloads and serializes telemetry metadata with minimal JSON overhead. Its lightweight dependency injection mechanism facilitates clean separation between route handlers and stateful agent singletons.
+
+LangChain provides the foundational abstractions for document representations, contextual compression pipelines, and modular retriever interfaces. By leveraging standard `Document` and `BaseRetriever` specifications, RAGA integrates cleanly with third-party tools while maintaining custom implementations for specialized logic such as Reciprocal Rank Fusion and parent-child document mapping. LangChain’s ecosystem also streamlines integration with Cohere and OpenAI SDKs.
+
+For vector storage and similarity search, Qdrant was selected due to its enterprise performance, native support for payload-based filtering, and dual dense-sparse vector support. Written in Rust, Qdrant utilizes Hierarchical Navigable Small World (HNSW) graphs to achieve sub-millisecond nearest-neighbor search even at scale. In addition, its lightweight in-memory mode allows instant local execution and automated unit testing without requiring external container dependencies during CI/CD pipelines.
+
+Cohere ReRank represents the core context compression engine within the stack. Operating as an optimized cross-encoder trained explicitly on passage relevance, Cohere ReRank v3 evaluates query and document pairs jointly. This neural scoring mechanism surpasses traditional bi-encoder cosine similarities by modeling all cross-attention token interactions, allowing RAGA to prune candidate document sets down to the most informative passages.
+
+The memory subsystem incorporates architectural patterns pioneered by Mem0 and Zep, providing a decoupled, persistent semantic fact registry. Rather than storing unbounded raw conversation histories that congest the context window, the memory layer extracts structured facts, language preferences, and stylistic constraints, storing them in indexed local storage. This enables rapid retrieval and dynamic system prompt adaptation on every conversational turn.
+
+Together, these technologies form a cohesive, production-ready stack where each tool is matched to its optimal operational role. The combination of FastAPI's asynchronous routing, Qdrant's vector indexing, Cohere's neural reranking, and Mem0's semantic memory creates an agent capable of meeting demanding enterprise performance, accuracy, and personalization requirements.
